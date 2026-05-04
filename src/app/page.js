@@ -207,6 +207,72 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+      {/* ─── Section 3: About Us ─── */}
+      <section id="about" className="relative min-h-[80vh] flex items-center py-24 px-4 sm:px-8 md:px-16 lg:px-24">
+        <div className="max-w-5xl mx-auto w-full">
+          <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] border border-white/10 relative overflow-hidden">
+            {/* Decorative background glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] pointer-events-none" />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+              <motion.div
+                initial={{ x: -40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <span className="text-xs uppercase tracking-[0.3em] text-primary/60 font-['Space_Grotesk'] font-semibold mb-4 block">
+                  The Creator
+                </span>
+                <h2 className="text-4xl md:text-5xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-6">
+                  About Us
+                </h2>
+                <div className="space-y-4">
+                  <p className="text-xl md:text-2xl font-['Space_Grotesk'] text-primary font-semibold">
+                    Srishti Rawat
+                  </p>
+                  <p className="text-gray-300 font-['Manrope'] text-lg leading-relaxed">
+                    A third-year student passionate about exploring the frontiers of technology. Currently focused on learning and building innovative AI tools that empower creators and developers.
+                  </p>
+                  <p className="text-gray-400 font-['Manrope']">
+                    DEA is a manifestation of that passion — an attempt to bridge the gap between inspiration and implementation through intelligence.
+                  </p>
+                </div>
+
+                <div className="mt-10 flex gap-4">
+                  <div className="glass-panel px-4 py-2 rounded-full text-xs text-primary/80 border-primary/20">
+                    AI Research
+                  </div>
+                  <div className="glass-panel px-4 py-2 rounded-full text-xs text-secondary/80 border-secondary/20">
+                    Tool Building
+                  </div>
+                  <div className="glass-panel px-4 py-2 rounded-full text-xs text-tertiary/80 border-tertiary/20">
+                    Third Year Student
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ x: 40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="relative flex justify-center"
+              >
+                <div className="relative h-64 w-64 md:h-80 md:w-80">
+                  <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30 animate-[spin_20s_linear_infinite]" />
+                  <div className="absolute inset-4 rounded-full border border-white/10 bg-black/40 backdrop-blur-3xl flex items-center justify-center">
+                    <Sparkles className="h-20 w-20 text-primary opacity-20" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                       <span className="material-symbols-outlined text-8xl text-primary/10">psychology</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
