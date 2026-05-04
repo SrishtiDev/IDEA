@@ -1,12 +1,14 @@
 import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 
-const openai = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY,
-  baseURL: process.env.NVIDIA_BASE_URL,
-});
+export const dynamic = "force-dynamic";
 
 export async function POST(req) {
+  const openai = new OpenAI({
+    apiKey: process.env.NVIDIA_API_KEY,
+    baseURL: process.env.NVIDIA_BASE_URL,
+  });
+
   try {
     const { title, description, techStack } = await req.json();
 

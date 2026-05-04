@@ -1,12 +1,14 @@
 import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 
-const openai = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY_TRENDING,
-  baseURL: process.env.NVIDIA_BASE_URL,
-});
+export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const openai = new OpenAI({
+    apiKey: process.env.NVIDIA_API_KEY_TRENDING,
+    baseURL: process.env.NVIDIA_BASE_URL,
+  });
+
   try {
     const prompt = `You are a tech industry analyst. List 8 trending project ideas that are currently hot in the tech market in 2025-2026. These should be real-world relevant projects that developers are building right now.
 
