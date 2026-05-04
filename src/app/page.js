@@ -260,12 +260,18 @@ export default function Home() {
                 className="relative flex justify-center"
               >
                 <div className="relative h-64 w-64 md:h-80 md:w-80">
+                  {/* Decorative rotating border */}
                   <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30 animate-[spin_20s_linear_infinite]" />
-                  <div className="absolute inset-4 rounded-full border border-white/10 bg-black/40 backdrop-blur-3xl flex items-center justify-center">
-                    <Sparkles className="h-20 w-20 text-primary opacity-20" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                       <span className="material-symbols-outlined text-8xl text-primary/10">psychology</span>
-                    </div>
+                  
+                  {/* Image container */}
+                  <div className="absolute inset-4 rounded-full border border-white/10 bg-black/40 backdrop-blur-3xl overflow-hidden flex items-center justify-center group/img">
+                    <img 
+                      src="/pfp.png" 
+                      alt="Srishti Rawat" 
+                      className="h-full w-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-110 group-hover/img:scale-100"
+                    />
+                    {/* Subtle overlay glow */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
                   </div>
                 </div>
               </motion.div>
