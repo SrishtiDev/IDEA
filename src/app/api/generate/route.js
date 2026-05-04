@@ -2,9 +2,9 @@ import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 
 const openai = new OpenAI({
-  apiKey: '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',
-  baseURL: 'https://integrate.api.nvidia.com/v1',
-})
+  apiKey: process.env.NVIDIA_API_KEY,
+  baseURL: process.env.NVIDIA_BASE_URL,
+});
 
 export async function POST(req) {
   try {

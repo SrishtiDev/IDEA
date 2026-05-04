@@ -3,8 +3,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function IdeaPage() {
+  const router = useRouter();
   const [techStack, setTechStack] = useState("");
   const [theme, setTheme] = useState("");
   const [customTheme, setCustomTheme] = useState("");
@@ -193,7 +195,17 @@ export default function IdeaPage() {
                     <div className="flex gap-2">
                        <span className="px-3 py-1 rounded-full bg-white/5 text-[10px] text-gray-400 uppercase tracking-widest border border-white/5">Project</span>
                     </div>
-                    <button className="text-xs font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-all flex items-center gap-2 group/btn">
+                    <button
+                      onClick={() => {
+                        const params = new URLSearchParams({
+                          title: idea.title,
+                          description: idea.description,
+                          techStack: techStack,
+                        });
+                        router.push(`/explore?${params.toString()}`);
+                      }}
+                      className="text-xs font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-all flex items-center gap-2 group/btn"
+                    >
                       Explore Concept 
                       <ArrowRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
