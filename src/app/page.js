@@ -1,13 +1,14 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { WordsPullUp } from "@/components/ui/prisma-hero";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
-export const Home = () => {
+export default function Home() {
   return (
     <div className="absolute bottom-0 left-0 right-0 px-4 pb-2 sm:px-6 md:px-10">
       <div className="grid grid-cols-12 items-end gap-4">
-
         <div className="col-span-12 lg:col-span-8">
           <h1
             className="font-medium leading-[0.85] tracking-[-0.07em] text-[26vw] sm:text-[24vw] md:text-[22vw] lg:text-[20vw] xl:text-[19vw] 2xl:text-[20vw]"
@@ -18,11 +19,14 @@ export const Home = () => {
         </div>
 
         <div className="col-span-12 flex flex-col gap-5 pb-6 lg:col-span-4 lg:pb-10">
-
           <motion.p
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.8,
+              delay: 0.5,
+              ease: [0.16, 1, 0.3, 1],
+            }}
             className="text-xs text-primary/80 sm:text-sm md:text-base"
             style={{ lineHeight: 1.2 }}
           >
@@ -30,7 +34,7 @@ export const Home = () => {
             engine built for the future of creation.
           </motion.p>
 
-          <Link to="/idea">
+          <Link href="/idea">
             <motion.button
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -54,4 +58,4 @@ export const Home = () => {
       </div>
     </div>
   );
-};
+}
