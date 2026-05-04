@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   const openai = new OpenAI({
-    apiKey: process.env.NVIDIA_API_KEY,
+    apiKey: process.env.NVIDIA_API_KEY_TRENDING,
     baseURL: process.env.NVIDIA_BASE_URL,
   });
 
@@ -40,7 +40,7 @@ Include 4-6 tech stack items, 4-6 features, and 4-5 implementation phases.
 Return ONLY valid JSON, no markdown.`;
 
     const completion = await openai.chat.completions.create({
-      model: "z-ai/glm4.7",
+      model: "minimaxai/minimax-m2.7",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       top_p: 1,
