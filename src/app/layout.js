@@ -9,7 +9,7 @@ export const metadata = {
 
 const navItems = [
   { name: "Idea", path: "/idea" },
-  { name: "Trending", path: "#" },
+  { name: "Trending", path: "/trending" },
   { name: "About Us", path: "#" },
   { name: "Docs", path: "#" },
   { name: "Home", path: "/" },
