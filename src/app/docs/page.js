@@ -1,288 +1,349 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import {
-  FileText,
-  Upload,
+  BookOpen,
+  Lightbulb,
+  TrendingUp,
+  Compass,
   Sparkles,
-  Loader2,
-  ArrowRight,
-  AlertCircle,
-  FileCheck,
-  CheckCircle2,
+  HelpCircle,
+  ChevronRight,
+  Zap,
 } from "lucide-react";
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+
+const sections = [
+  { id: "what-is-dea", label: "What is DEA", icon: <BookOpen className="h-4 w-4" /> },
+  { id: "getting-started", label: "Getting Started", icon: <Zap className="h-4 w-4" /> },
+  { id: "pages-guide", label: "Pages Guide", icon: <Compass className="h-4 w-4" /> },
+  { id: "tips", label: "Tips", icon: <Sparkles className="h-4 w-4" /> },
+  { id: "faq", label: "FAQ", icon: <HelpCircle className="h-4 w-4" /> },
+];
+
+const faqs = [
+  {
+    q: "How is DEA different from ChatGPT?",
+    a: "DEA is purpose-built for project discovery. Instead of open-ended conversation, it generates structured, buildable project ideas tailored to your exact tech stack, complete with architecture breakdowns and step-by-step implementation roadmaps.",
+  },
+  {
+    q: "Can I use this for college projects?",
+    a: "Absolutely. DEA is designed for students, indie hackers, and professional developers alike. It's a perfect tool for hackathons, capstone projects, or portfolio building.",
+  },
+  {
+    q: "Is DEA free to use?",
+    a: "Yes — DEA is completely free. The platform is powered by open-weight models via NVIDIA NIM, and we plan to keep the core experience free.",
+  },
+  {
+    q: "What models power DEA?",
+    a: "We use z-ai/glm4.7 for idea generation and architecture breakdowns, and minimaxai/minimax-m2.7 for explore guides. All models are served through NVIDIA's inference API.",
+  },
+  {
+    q: "Where does the Trending data come from?",
+    a: "Trending projects are scraped directly from GitHub's daily trending page in real-time, so you always see what the open-source community is most excited about right now.",
+  },
+];
 
 export default function DocsPage() {
-  const router = useRouter();
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [results, setResults] = useState(null);
-  const fileInputRef = useRef(null);
+  const [activeSection, setActiveSection] = useState("what-is-dea");
+  const [openFaq, setOpenFaq] = useState(null);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    validateAndSetFile(selectedFile);
-  };
-
-  const validateAndSetFile = (selectedFile) => {
-    setError("");
-    if (!selectedFile) return;
-
-    const validTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
-    if (!validTypes.includes(selectedFile.type)) {
-      setError("Please upload a PDF or .docx file.");
-      return;
-    }
-
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      setError("File size must be less than 5MB.");
-      return;
-    }
-
-    setFile(selectedFile);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const droppedFile = e.dataTransfer.files[0];
-    validateAndSetFile(droppedFile);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleSubmit = async () => {
-    if (!file) return;
-
-    setLoading(true);
-    setError("");
-    setResults(null);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await fetch("/api/docs", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to process document");
-      }
-
-      setResults(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExplore = (idea) => {
-    const params = new URLSearchParams({
-      title: idea.title,
-      description: idea.description,
-      techStack: idea.techStack.join(", "),
-    });
-    router.push(`/explore?${params.toString()}`);
+  const scrollTo = (id) => {
+    setActiveSection(id);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="absolute inset-0 overflow-y-auto pt-24 pb-16 px-4 sm:px-8 md:px-12 lg:px-20">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="mb-12 text-center"
-        >
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <FileText className="h-8 w-8 text-primary" />
-            <span className="text-xs uppercase tracking-[0.3em] text-primary/60 font-['Space_Grotesk'] font-semibold">
-              Document Intelligence
-            </span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-4">
-            Upload Your Specs
-          </h1>
-          <p className="text-gray-400 font-['Manrope'] text-base md:text-lg max-w-2xl mx-auto">
-            Transform your PRDs, project briefs, or requirement docs into buildable project ideas and architectural blueprints.
-          </p>
-        </motion.div>
+    <div className="absolute inset-0 overflow-y-auto pt-20 pb-16 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto flex gap-8">
 
-        {/* Upload Zone */}
-        {!results && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto"
-          >
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={() => fileInputRef.current.click()}
-              className={`glass-panel p-12 rounded-[2.5rem] border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-6 group ${
-                file ? "border-primary/50 bg-primary/5" : "border-white/10 hover:border-primary/30 hover:bg-white/5"
+        {/* ── Sidebar (desktop) / Tab bar (mobile) ── */}
+        <nav className="hidden lg:block w-56 flex-shrink-0">
+          <div className="sticky top-24 space-y-1">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-primary/50 font-['Space_Grotesk'] font-bold mb-4 block px-3">
+              Documentation
+            </span>
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => scrollTo(s.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-['Space_Grotesk'] font-semibold transition-all ${
+                  activeSection === s.id
+                    ? "bg-primary/10 text-primary border border-primary/20"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                }`}
+              >
+                {s.icon}
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Mobile tab bar */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-black/90 backdrop-blur-xl border-t border-white/5 flex overflow-x-auto gap-1 p-2 scrollbar-hide">
+          {sections.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => scrollTo(s.id)}
+              className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-['Space_Grotesk'] font-semibold transition-all ${
+                activeSection === s.id
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-gray-500"
               }`}
             >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept=".pdf,.docx"
-                className="hidden"
-              />
-              
-              <div className={`h-20 w-20 rounded-full flex items-center justify-center transition-all ${
-                file ? "bg-primary/20 text-primary" : "bg-white/5 text-gray-500 group-hover:scale-110 group-hover:text-primary/50"
-              }`}>
-                {file ? <FileCheck className="h-10 w-10" /> : <Upload className="h-10 w-10" />}
-              </div>
+              {s.icon}
+              {s.label}
+            </button>
+          ))}
+        </div>
 
-              <div className="text-center">
-                <p className="text-xl font-['Space_Grotesk'] text-[#E1E0CC] mb-2">
-                  {file ? file.name : "Drop your requirement doc here"}
-                </p>
-                <p className="text-sm text-gray-500 font-['Manrope']">
-                  {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "Supports PDF and .docx up to 5MB"}
-                </p>
-              </div>
+        {/* ── Main Content ── */}
+        <div className="flex-1 min-w-0 space-y-12">
 
-              {file && !loading && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSubmit();
-                  }}
-                  className="mt-4 group inline-flex items-center gap-3 rounded-full bg-primary py-3 px-8 text-sm font-semibold text-black transition-all shadow-[0_0_20px_rgba(192,193,255,0.3)] hover:shadow-[0_0_30px_rgba(192,193,255,0.5)]"
+          {/* What is DEA */}
+          <motion.section
+            id="what-is-dea"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-panel p-8 md:p-10 rounded-[2rem] border border-white/5"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-6">
+              What is DEA?
+            </h2>
+            <p className="text-gray-300 font-['Manrope'] text-base md:text-lg leading-relaxed">
+              DEA — the Discovery &amp; Execution Assistant — is an intelligence engine that
+              transforms your tech stack into buildable project blueprints. Tell it what
+              you know, and it generates unique project ideas tailored to your skills, then
+              breaks each one down into a full architecture overview, technology mapping,
+              and step-by-step implementation roadmap. Whether you&apos;re a student hunting for
+              a capstone project, a developer building a portfolio, or a team brainstorming
+              your next product — DEA turns &quot;I don&apos;t know what to build&quot; into &quot;here&apos;s how to
+              build it.&quot;
+            </p>
+          </motion.section>
+
+          {/* Getting Started */}
+          <motion.section
+            id="getting-started"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="glass-panel p-8 md:p-10 rounded-[2rem] border border-white/5"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-8">
+              Getting Started
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  step: "01",
+                  title: "Pick Your Stack",
+                  desc: "Enter the technologies you're comfortable with — React, Python, Node.js, or anything else. The more specific you are, the better the results.",
+                  icon: <Lightbulb className="h-6 w-6" />,
+                },
+                {
+                  step: "02",
+                  title: "Choose a Theme",
+                  desc: 'Select from curated categories like AI, Blockchain, Cybersecurity, or Cloud. You can also add a custom theme for niche ideas.',
+                  icon: <Compass className="h-6 w-6" />,
+                },
+                {
+                  step: "03",
+                  title: "Generate & Explore",
+                  desc: 'Hit Generate to receive 4 unique project concepts. Click "Explore Concept" on any card to get a full architectural breakdown.',
+                  icon: <Sparkles className="h-6 w-6" />,
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="relative p-6 rounded-2xl bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all"
                 >
-                  Analyze Document
-                  <Sparkles className="h-4 w-4" />
-                </button>
-              )}
-
-              {loading && (
-                <div className="mt-4 flex items-center gap-3 text-primary font-semibold">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Processing...
-                </div>
-              )}
-            </div>
-
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="mt-6 flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
-                >
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  {error}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        )}
-
-        {/* Results */}
-        <AnimatePresence>
-          {results && (
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-12"
-            >
-              {/* Result Header */}
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
-                <div>
-                  <div className="flex items-center gap-2 text-primary mb-2">
-                    <CheckCircle2 className="h-5 w-5" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Analysis Complete</span>
+                  <span className="absolute -top-3 -right-1 text-6xl font-black font-['Space_Grotesk'] text-white/[0.03] group-hover:text-white/[0.06] transition-colors select-none">
+                    {item.step}
+                  </span>
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 border border-primary/20">
+                    {item.icon}
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] mb-2">
-                    {results.projectTitle}
-                  </h2>
-                  <p className="text-gray-400 font-['Manrope'] text-lg">
-                    {results.summary}
+                  <h3 className="text-lg font-bold font-['Space_Grotesk'] text-[#E1E0CC] mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-400 font-['Manrope'] leading-relaxed">
+                    {item.desc}
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    setResults(null);
-                    setFile(null);
-                  }}
-                  className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-primary transition-colors"
-                >
-                  Upload New Doc
-                </button>
-              </div>
+              ))}
+            </div>
+          </motion.section>
 
-              {/* Ideas Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {results.ideas.map((idea, i) => (
-                  <motion.div
-                    key={idea.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="glass-panel p-8 rounded-[2rem] border border-white/5 hover:border-primary/30 transition-all group relative overflow-hidden flex flex-col h-full"
-                  >
-                    {/* Hover glow */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]" />
-
-                    <div className="relative z-10 flex flex-col h-full">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 text-gray-400">
-                          {idea.difficulty}
-                        </span>
-                        <Sparkles className="h-4 w-4 text-primary/40" />
-                      </div>
-
-                      <h3 className="text-2xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] group-hover:text-primary transition-colors mb-4">
-                        {idea.title}
-                      </h3>
-
-                      <p className="text-gray-400 font-['Manrope'] leading-relaxed mb-6 group-hover:text-gray-300 transition-colors flex-grow">
-                        {idea.description}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2 mb-8">
-                        {idea.techStack.map((tech) => (
-                          <span
-                            key={tech}
-                            className="px-3 py-1 rounded-lg bg-white/5 text-[10px] text-gray-400 font-semibold tracking-wider uppercase border border-white/5"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-
-                      <button
-                        onClick={() => handleExplore(idea)}
-                        className="w-full group/btn inline-flex items-center justify-between rounded-2xl bg-white/5 py-4 px-6 text-sm font-bold uppercase tracking-[0.15em] text-[#E1E0CC] transition-all hover:bg-primary hover:text-black"
-                      >
-                        Explore Architecture
-                        <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                      </button>
+          {/* Pages Guide */}
+          <motion.section
+            id="pages-guide"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="glass-panel p-8 md:p-10 rounded-[2rem] border border-white/5"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-8">
+              Pages Guide
+            </h2>
+            <div className="space-y-8">
+              {[
+                {
+                  route: "/idea",
+                  title: "Idea Generation",
+                  icon: <Lightbulb className="h-5 w-5" />,
+                  content: [
+                    { label: "Tech Stack", desc: "A comma-separated list of technologies you know. This is the primary input that shapes every generated idea." },
+                    { label: "Theme Dropdown", desc: "Choose a broad domain — AI, Blockchain, Cybersecurity, Cloud, or Web3. This focuses the AI on a specific market vertical." },
+                    { label: "Custom Theme (optional)", desc: "Add your own niche — like \"healthcare IoT\" or \"music recommendation.\" This overrides or blends with the dropdown theme for unique ideas." },
+                    { label: "Generate Button", desc: "Sends your inputs to the AI. In ~10 seconds, you'll see 4 project cards with titles, descriptions, and an Explore button." },
+                  ],
+                },
+                {
+                  route: "/trending",
+                  title: "Trending Repos",
+                  icon: <TrendingUp className="h-5 w-5" />,
+                  content: [
+                    { label: "Market Pulse", desc: "Shows today's trending repositories scraped directly from GitHub in real-time. Stars, forks, and languages update daily." },
+                    { label: "Repo Cards", desc: "Each card shows the owner, repo name, description, star count, fork count, and programming language." },
+                    { label: "Explore Concept", desc: "Click any trending repo to generate a full AI-powered architectural guide, just like your custom ideas." },
+                    { label: "GitHub Link", desc: "The external link icon takes you directly to the repository on GitHub." },
+                  ],
+                },
+                {
+                  route: "/explore",
+                  title: "Architecture Explorer",
+                  icon: <Compass className="h-5 w-5" />,
+                  content: [
+                    { label: "Architecture Overview", desc: "A high-level description of how the system components connect — databases, APIs, frontend, and services." },
+                    { label: "Tech Stack Breakdown", desc: "Each technology is listed with its specific role in the project and an icon for quick scanning." },
+                    { label: "Key Features", desc: "The AI identifies 4–6 core features that make the project functional and compelling." },
+                    { label: "Implementation Roadmap", desc: "A vertical timeline with phased steps, each containing 2–4 specific tasks to complete. This is your build plan." },
+                  ],
+                },
+              ].map((page) => (
+                <div key={page.route} className="p-6 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                      {page.icon}
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                    <div>
+                      <code className="text-xs text-primary/60 font-mono">{page.route}</code>
+                      <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#E1E0CC]">
+                        {page.title}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {page.content.map((item) => (
+                      <div key={item.label} className="flex gap-3">
+                        <ChevronRight className="h-4 w-4 text-primary/40 mt-1 flex-shrink-0" />
+                        <div>
+                          <span className="text-sm font-bold font-['Space_Grotesk'] text-[#E1E0CC] block mb-1">
+                            {item.label}
+                          </span>
+                          <span className="text-xs text-gray-400 font-['Manrope'] leading-relaxed block">
+                            {item.desc}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Tips for Best Results */}
+          <motion.section
+            id="tips"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="glass-panel p-8 md:p-10 rounded-[2rem] border border-white/5"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-8">
+              Tips for Best Results
+            </h2>
+            <div className="space-y-5">
+              {[
+                {
+                  tip: "Be specific with your tech stack",
+                  detail: 'Instead of just "Python," try "Python, FastAPI, PostgreSQL, Redis." The more detail you give, the more targeted and realistic your project ideas will be.',
+                },
+                {
+                  tip: "Combine multiple themes for niche ideas",
+                  detail: 'Select "AI" from the dropdown and type "music production" in the custom field. Mixing domains produces unique, portfolio-worthy project concepts.',
+                },
+                {
+                  tip: "Use Explore for interview prep",
+                  detail: "The architecture breakdown and roadmap are great for system design practice. Study the tech stack roles and implementation phases to sharpen your understanding.",
+                },
+                {
+                  tip: "Check Trending daily for inspiration",
+                  detail: "GitHub's trending page rotates fast. Visit daily to catch emerging tools and frameworks, then generate your own spin on a trending concept.",
+                },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold font-['Space_Grotesk'] text-[#E1E0CC] mb-1">
+                      {item.tip}
+                    </p>
+                    <p className="text-sm text-gray-400 font-['Manrope'] leading-relaxed">
+                      {item.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* FAQ */}
+          <motion.section
+            id="faq"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="glass-panel p-8 md:p-10 rounded-[2rem] border border-white/5 mb-20 lg:mb-0"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-[#E1E0CC] tracking-tight mb-8">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <button
+                  key={i}
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full text-left p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-base font-bold font-['Space_Grotesk'] text-[#E1E0CC]">
+                      {faq.q}
+                    </span>
+                    <ChevronRight
+                      className={`h-4 w-4 text-primary/40 flex-shrink-0 transition-transform ${
+                        openFaq === i ? "rotate-90" : ""
+                      }`}
+                    />
+                  </div>
+                  {openFaq === i && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="text-sm text-gray-400 font-['Manrope'] leading-relaxed mt-3 pt-3 border-t border-white/5"
+                    >
+                      {faq.a}
+                    </motion.p>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.section>
+        </div>
       </div>
     </div>
   );
