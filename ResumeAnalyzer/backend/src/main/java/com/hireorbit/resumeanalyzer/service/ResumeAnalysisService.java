@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service;
 public class ResumeAnalysisService {
 
     private final NimApiService nimApiService;
-    private final PdfExtractService pdfExtractService;
 
-    public ResumeAnalysisService(NimApiService nimApiService, PdfExtractService pdfExtractService) {
+    public ResumeAnalysisService(NimApiService nimApiService) {
         this.nimApiService = nimApiService;
-        this.pdfExtractService = pdfExtractService;
     }
 
     public String parseResumeText(String rawText) {

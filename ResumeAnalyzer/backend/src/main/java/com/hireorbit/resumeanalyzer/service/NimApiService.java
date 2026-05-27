@@ -55,8 +55,11 @@ public class NimApiService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
         
         try {
+            @SuppressWarnings("unchecked")
             Map<String, Object> response = restTemplate.postForObject(NIM_API_URL, entity, Map.class);
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+            @SuppressWarnings("unchecked")
             Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
             return (String) message.get("content");
         } catch (Exception e) {
