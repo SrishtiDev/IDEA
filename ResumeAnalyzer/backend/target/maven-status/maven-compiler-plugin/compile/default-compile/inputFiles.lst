@@ -1,0 +1,6 @@
+/home/srishti-rawat/Projects/HireOrbit/ResumeAnalyzer/backend/src/main/java/com/hireorbit/resumeanalyzer/service/NimApiService.java
+/home/srishti-rawat/Projects/HireOrbit/ResumeAnalyzer/backend/src/main/java/com/hireorbit/resumeanalyzer/ResumeAnalyzerApplication.java
+/home/srishti-rawat/Projects/HireOrbit/ResumeAnalyzer/backend/src/main/java/com/hireorbit/resumeanalyzer/controller/AnalyzeController.java
+/home/srishti-rawat/Projects/HireOrbit/ResumeAnalyzer/backend/src/main/java/com/hireorbit/resumeanalyzer/service/PdfExtractService.java
+/home/srishti-rawat/Projects/HireOrbit/ResumeAnalyzer/backend/src/main/java/com/hireorbit/resumeanalyzer/service/ResumeAnalysisService.java
+/home/srishti-rawat/Projects/HireOrbit/ResumeAnalyzer/backend/src/main/java/com/hireorbit/resumeanalyzer/service/LatexCompilerService.java

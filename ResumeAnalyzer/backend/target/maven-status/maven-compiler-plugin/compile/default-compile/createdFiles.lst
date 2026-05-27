@@ -1,0 +1,6 @@
+com/hireorbit/resumeanalyzer/service/PdfExtractService.class
+com/hireorbit/resumeanalyzer/service/NimApiService.class
+com/hireorbit/resumeanalyzer/service/LatexCompilerService.class
+com/hireorbit/resumeanalyzer/service/ResumeAnalysisService.class
+com/hireorbit/resumeanalyzer/controller/AnalyzeController.class
+com/hireorbit/resumeanalyzer/ResumeAnalyzerApplication.class
