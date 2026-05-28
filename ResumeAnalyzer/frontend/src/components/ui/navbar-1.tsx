@@ -26,15 +26,21 @@ const Navbar1 = () => {
       <div className="navbar-glass flex items-center justify-between px-5 py-2.5 rounded-full w-full max-w-3xl relative">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            whileHover={{ rotate: 12, scale: 1.1 }}
             transition={{ duration: 0.3 }}
-            className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center shadow-lg shadow-violet-500/30"
+            className="w-7 h-7 flex items-center justify-center"
           >
-            <Zap size={14} className="text-white" />
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              <g className="origin-center animate-[spin_8s_linear_infinite] group-hover:[animation-duration:2s]">
+                <path d="M12 28 C 12 16, 24 12, 32 16" stroke="#7C6FF7" strokeWidth="3" strokeLinecap="round" />
+                <path d="M12 28 C 12 16, 24 12, 32 16" stroke="white" strokeOpacity="0.6" strokeWidth="2" strokeLinecap="round" transform="rotate(120 20 20)" />
+                <path d="M12 28 C 12 16, 24 12, 32 16" stroke="#a855f7" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" transform="rotate(240 20 20)" />
+              </g>
+              <circle cx="20" cy="20" r="2" fill="#7C6FF7" />
+            </svg>
           </motion.div>
           <motion.span
             initial={{ opacity: 0, x: -8 }}

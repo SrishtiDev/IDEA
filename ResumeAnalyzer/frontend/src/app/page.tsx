@@ -2,16 +2,16 @@
 
 import { HeroSection } from "@/components/blocks/hero-section-9";
 import Link from "next/link";
-import { ArrowRight, Shield, FileText, Target, BarChart3, Sparkles, CheckCircle } from "lucide-react";
+import { ArrowRight, Shield, FileText, Target, BarChart3, Sparkles, CheckCircle, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const features = [
-  { icon: Shield, title: 'Enterprise ATS Simulation', desc: 'Replicates Workday, Greenhouse, Taleo, Lever & iCIMS — the actual systems screening your resume.' },
-  { icon: Target, title: 'Keyword Match Engine', desc: 'Compare your resume against any JD and see which keywords you\'re missing and how to add them.' },
-  { icon: BarChart3, title: 'ATS Score & Verdict', desc: 'Precise 0–100 score with PASS / BORDERLINE / REJECT verdict and the specific reasons behind it.' },
-  { icon: FileText, title: 'LaTeX Resume Generator', desc: 'One click generates a clean, ATS-friendly LaTeX resume with all recommendations already applied.' },
-  { icon: Sparkles, title: 'Frontier AI Analysis', desc: 'Powered by NVIDIA Nemotron Super 49B — a model that understands your resume the way a recruiter does.' },
-  { icon: ArrowRight, title: 'Instant Results', desc: 'Upload your resume and get a full ATS breakdown in under 30 seconds. No account. No card.' },
+  { icon: Shield, title: 'Enterprise ATS Simulation', desc: 'Replicates Workday, Greenhouse, Taleo, Lever & iCIMS — the actual systems screening your resume.', colorClass: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' },
+  { icon: Target, title: 'Keyword Match Engine', desc: 'Compare your resume against any JD and see which keywords you\'re missing and how to add them.', colorClass: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' },
+  { icon: BarChart3, title: 'ATS Score & Verdict', desc: 'Precise 0–100 score with PASS / BORDERLINE / REJECT verdict and the specific reasons behind it.', colorClass: 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400' },
+  { icon: FileText, title: 'LaTeX Resume Generator', desc: 'One click generates a clean, ATS-friendly LaTeX resume with all recommendations already applied.', colorClass: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' },
+  { icon: Sparkles, title: 'Frontier AI Analysis', desc: 'Powered by NVIDIA Nemotron Super 49B — a model that understands your resume the way a recruiter does.', colorClass: 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400' },
+  { icon: ArrowRight, title: 'Instant Results', desc: 'Upload your resume and get a full ATS breakdown in under 30 seconds. No account. No card.', colorClass: 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400' },
 ];
 
 const steps = [
@@ -25,6 +25,19 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#050505] text-foreground">
       {/* Hero with its own nav */}
       <HeroSection />
+
+      {/* Inline Upload Zone */}
+      <section className="relative z-10 -mt-12 mb-16 px-6">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/analyze" className="block w-full border-2 border-dashed border-zinc-300 dark:border-zinc-700/50 bg-white/50 dark:bg-zinc-900/30 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 backdrop-blur-sm rounded-[2rem] p-12 text-center transition-all duration-300 group">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center mx-auto mb-5 group-hover:scale-110 group-hover:bg-violet-500/10 transition-all duration-300">
+              <UploadCloud className="w-8 h-8 text-zinc-400 group-hover:text-violet-500 dark:group-hover:text-violet-400 transition-colors" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Drop your resume to get your ATS score</h3>
+            <p className="text-zinc-500 text-sm font-medium">.pdf · .docx · .txt supported</p>
+          </Link>
+        </div>
+      </section>
 
       {/* Features */}
       <section id="features" className="py-24 px-6 relative z-10">
@@ -41,8 +54,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
               <div key={i} className="relative rounded-3xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-[#0a0a0a] p-8 hover:border-violet-300 dark:hover:border-zinc-700 transition-colors shadow-sm">
-                <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-6">
-                  <f.icon size={18} className="text-zinc-700 dark:text-zinc-300" />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${f.colorClass}`}>
+                  <f.icon size={18} />
                 </div>
                 <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3 text-lg tracking-tight">{f.title}</h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{f.desc}</p>

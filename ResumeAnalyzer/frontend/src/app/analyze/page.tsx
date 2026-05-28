@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import {
   UploadCloud, Cpu, Code, CheckCircle, AlertTriangle,
-  FileText, Check, XCircle, Info, ChevronDown, ChevronUp, ArrowLeft
+  FileText, Check, XCircle, Info, ChevronDown, ChevronUp, ArrowLeft, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -135,7 +135,7 @@ export default function AnalyzePage() {
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Page header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <Link href="/" className="text-xs text-[#555] hover:text-white transition-colors flex items-center gap-1.5 mb-3">
               <ArrowLeft size={12} /> Back to home
@@ -143,80 +143,93 @@ export default function AnalyzePage() {
             <h1 className="text-2xl font-semibold text-white tracking-tight">ATS Analyzer</h1>
             <p className="text-sm text-[#555] mt-1">Upload your resume and get an enterprise ATS simulation report</p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 glass rounded-xl px-4 py-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs text-[#555] font-mono">NVIDIA NIM · ONLINE</span>
+          <div className="hidden sm:flex items-center gap-2 border border-white/5 bg-white/2 rounded-full px-3 py-1">
+            {/* <span className="text-[10px] text-[#555] font-mono tracking-widest uppercase">Powered by Claude AI</span> */}
           </div>
         </div>
+        
+        <div className="w-full h-px bg-white/10 mb-8" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 items-start">
+        <div className="flex flex-col gap-6">
 
-          {/* ── LEFT: Input panel ── */}
-          <aside className="flex flex-col gap-4 lg:sticky lg:top-28">
-            <div className="glass rounded-2xl p-5">
-              <p className="text-[10px] text-[#555] font-mono uppercase tracking-widest mb-3 flex items-center gap-2">
-                <FileText size={10} /> Job Description
+          {/* ── TOP: Input panels ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left: Upload Zone */}
+            <div className="glass rounded-2xl p-6 h-[280px] flex flex-col">
+              <p className="text-xs text-[#888] font-mono uppercase tracking-widest mb-4">Resume Upload</p>
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="flex-1 border-2 border-dashed border-zinc-700/50 bg-black/20 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-violet-500/50 hover:bg-violet-500/5 transition-all group"
+              >
+                <input ref={fileRef} type="file" accept=".pdf" className="hidden"
+                  onChange={e => setFile(e.target.files?.[0] || null)} />
+                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <UploadCloud size={24} className="text-[#666] group-hover:text-white transition-colors" />
+                </div>
+                <p className="text-sm font-mono text-[#aaa] group-hover:text-white transition-colors px-4 truncate max-w-full">
+                  {file ? file.name : 'Drop your PDF or click to browse'}
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Job Description */}
+            <div className="glass rounded-2xl p-6 h-[280px] flex flex-col">
+              <p className="text-xs text-[#888] font-mono uppercase tracking-widest mb-4 flex items-center gap-2">
+                Job Description — <span className="text-[#555]">optional</span>
               </p>
               <textarea
                 value={jd}
                 onChange={e => setJd(e.target.value)}
-                className="w-full bg-black/30 border border-white/5 rounded-xl p-3 text-sm text-[#ccc] font-mono focus:outline-none focus:border-white/20 transition-colors resize-none h-36 placeholder:text-[#333]"
-                placeholder="Paste job description for keyword matching (optional)..."
+                className="flex-1 w-full bg-black/20 border-2 border-dashed border-zinc-700/50 rounded-xl p-5 text-sm text-[#ccc] font-mono focus:outline-none focus:border-violet-500/50 focus:bg-violet-500/5 transition-colors resize-none placeholder:text-[#444]"
+                placeholder="Paste the target job description here..."
               />
             </div>
+          </div>
 
-            <div className="glass rounded-2xl p-5">
-              <p className="text-[10px] text-[#555] font-mono uppercase tracking-widest mb-3 flex items-center gap-2">
-                <UploadCloud size={10} /> Resume Upload
-              </p>
-              <form onSubmit={handleAnalyze} className="flex flex-col gap-3">
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="border border-dashed border-white/10 rounded-xl p-6 text-center cursor-pointer hover:border-violet-500/40 hover:bg-violet-500/5 transition-all group"
-                >
-                  <input ref={fileRef} type="file" accept=".pdf" className="hidden"
-                    onChange={e => setFile(e.target.files?.[0] || null)} />
-                  <UploadCloud size={22} className="mx-auto mb-2 text-[#444] group-hover:text-violet-400 transition-colors" />
-                  <p className="text-xs font-mono text-[#444] group-hover:text-[#888] transition-colors truncate px-4">
-                    {file ? file.name : '[ DROP PDF HERE ]'}
-                  </p>
-                </div>
-                <button type="submit" disabled={!file || isAnalyzing}
-                  className="w-full bg-white text-black text-xs font-semibold py-3 rounded-xl hover:bg-[#ddd] transition-colors disabled:opacity-40 flex justify-center items-center gap-2">
-                  {isAnalyzing
-                    ? <><Cpu size={13} className="animate-spin" /> ANALYZING...</>
-                    : 'RUN ATS ANALYSIS →'}
-                </button>
-              </form>
+          {error && (
+            <div className="glass rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-xs text-red-400 font-mono text-center">
+              ⚠ {error}
             </div>
+          )}
 
-            {error && (
-              <div className="glass rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-xs text-red-400 font-mono">
-                ⚠ {error}
+          {/* ── MIDDLE: Action Button ── */}
+          <button 
+            onClick={handleAnalyze}
+            disabled={!file || isAnalyzing}
+            className="w-full bg-white text-black font-mono text-[16px] font-bold py-[18px] rounded-2xl hover:bg-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-3 relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+            {isAnalyzing
+              ? <><Cpu size={18} className="animate-spin" /> RUNNING ANALYSIS...</>
+              : 'RUN ATS ANALYSIS →'}
+          </button>
+
+          {/* ── BOTTOM: Results ── */}
+          <main className="flex flex-col gap-4 pb-12 mt-4 bg-zinc-900/40 rounded-3xl p-6 min-h-[500px] border border-white/5 relative">
+            {!analysis && !isAnalyzing && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center backdrop-blur-sm bg-black/20 rounded-3xl">
+                <div className="px-6 py-3 rounded-full bg-white text-black font-semibold text-sm shadow-xl flex items-center gap-2">
+                  <Sparkles size={16} />
+                  Run analysis to reveal your results
+                </div>
               </div>
             )}
-          </aside>
 
-          {/* ── RIGHT: Results ── */}
-          <main className="flex flex-col gap-4 pb-12">
             {!analysis && !isAnalyzing && (
-              <div className="glass rounded-3xl p-16 text-center border border-dashed border-white/5">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                  <FileText size={20} className="text-[#444]" />
-                </div>
-                <p className="text-sm text-[#333] font-mono uppercase tracking-widest">
-                  Your analysis report will appear here
-                </p>
+              <div className="opacity-30 blur-[2px] pointer-events-none flex flex-col gap-6">
+                <div className="h-40 rounded-2xl border border-white/10 bg-white/5 animate-pulse" />
+                <div className="h-32 rounded-2xl border border-white/10 bg-white/5 animate-pulse" />
+                <div className="h-48 rounded-2xl border border-white/10 bg-white/5 animate-pulse" />
               </div>
             )}
 
             {isAnalyzing && (
-              <div className="glass rounded-3xl p-16 text-center">
-                <Cpu size={28} className="mx-auto animate-spin text-violet-400 mb-4" />
-                <p className="text-sm text-[#555] font-mono uppercase tracking-widest">
-                  Simulating enterprise ATS...
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+                <Cpu size={32} className="animate-spin text-violet-400 mb-6" />
+                <p className="text-sm text-white font-mono uppercase tracking-widest mb-2">
+                  Parsing & Scoring Resume...
                 </p>
-                <p className="text-xs text-[#333] mt-2">Powered by NVIDIA Nemotron Super 49B</p>
+                <p className="text-xs text-[#666]">Comparing against enterprise ATS rulesets</p>
               </div>
             )}
 

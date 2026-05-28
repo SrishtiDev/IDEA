@@ -51,10 +51,15 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            <div className="flex items-center gap-2 mb-4 group cursor-pointer">
+              <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                  <g className="origin-center animate-[spin_8s_linear_infinite] group-hover:[animation-duration:2s]">
+                    <path d="M12 28 C 12 16, 24 12, 32 16" stroke="#7C6FF7" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M12 28 C 12 16, 24 12, 32 16" stroke="white" strokeOpacity="0.6" strokeWidth="2" strokeLinecap="round" transform="rotate(120 20 20)" />
+                    <path d="M12 28 C 12 16, 24 12, 32 16" stroke="#a855f7" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" transform="rotate(240 20 20)" />
+                  </g>
+                  <circle cx="20" cy="20" r="2" fill="#7C6FF7" />
                 </svg>
               </div>
               <span className="font-semibold text-white text-sm tracking-tight">HireOrbit</span>
@@ -89,9 +94,8 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="mt-16 pt-8 border-t border-white/5 flex justify-center items-center">
           <p className="text-xs text-[#444]">© 2026 HireOrbit. All rights reserved.</p>
-          <p className="text-xs text-[#444]">Powered by NVIDIA NIM × MiniMax AI</p>
         </div>
       </div>
     </footer>
