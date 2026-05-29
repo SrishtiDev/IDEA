@@ -12,7 +12,7 @@ export const CelestialOrbHero = ({ children }: { children?: React.ReactNode }) =
     if (!ctx) return;
 
     let particles: Particle[] = [];
-    let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     let animationFrameId: number;
 
     const resizeCanvas = () => {

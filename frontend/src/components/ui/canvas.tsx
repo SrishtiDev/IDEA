@@ -202,22 +202,22 @@ function Node() {
   this.y = 0;
   // @ts-ignore
   this.vy = 0;
-  // @ts-ignore
+  // @ts-expect-error
   this.vx = 0;
 }
 
 export const renderCanvas = function () {
-  // @ts-ignore
+  // @ts-expect-error
   const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
   if (!canvasElement) return;
-  // @ts-ignore
+  // @ts-expect-error
   ctx = canvasElement.getContext("2d");
   if (!ctx) return;
-  // @ts-ignore
+  // @ts-expect-error
   ctx.running = true;
-  // @ts-ignore
+  // @ts-expect-error
   ctx.frame = 1;
-  // @ts-ignore
+  // @ts-expect-error
   f = new n({
     phase: Math.random() * 2 * Math.PI,
     amplitude: 85,
@@ -229,15 +229,15 @@ export const renderCanvas = function () {
   document.body.addEventListener("orientationchange", resizeCanvas);
   window.addEventListener("resize", resizeCanvas);
   window.addEventListener("focus", () => {
-    // @ts-ignore
+    // @ts-expect-error
     if (ctx && !ctx.running) {
-      // @ts-ignore
+      // @ts-expect-error
       ctx.running = true;
       render();
     }
   });
   window.addEventListener("blur", () => {
-    // @ts-ignore
+    // @ts-expect-error
     if (ctx) ctx.running = true;
   });
   resizeCanvas();
