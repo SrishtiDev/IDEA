@@ -11,4 +11,7 @@ router.post('/', upload.single('resume'), analyzeController.analyzeResume);
 // Endpoint 2: Generate LaTeX code based on feedback
 router.post('/latex', analyzeController.generateLatex);
 
+// Endpoint 3: Compile LaTeX to PDF
+router.post('/compile', analyzeController.compileLatex);
+
 module.exports = router;

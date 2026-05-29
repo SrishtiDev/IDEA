@@ -337,6 +337,19 @@ export default function AnalyzePage() {
                     : <><Code size={13} className="text-violet-400" /> Generate ATS-Optimized LaTeX</>}
                 </button>
 
+                {/* Compile & Preview */}
+                {latexCode && (
+                  <button
+                    onClick={() => {
+                      sessionStorage.setItem('hireorbit_latex', latexCode);
+                      window.location.href = '/compile';
+                    }}
+                    className="w-full glass-strong rounded-2xl border border-white/20 text-white text-xs font-semibold py-4 uppercase tracking-widest hover:bg-white/10 transition-all flex justify-center items-center gap-2"
+                  >
+                    <Code size={13} /> Compile &amp; Preview PDF
+                  </button>
+                )}
+
                 {/* LaTeX output */}
                 {latexCode && (
                   <div className="glass rounded-2xl p-5">

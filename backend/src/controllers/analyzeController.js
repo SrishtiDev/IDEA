@@ -1,5 +1,6 @@
 const pdfService = require('../services/pdfService');
 const aiService = require('../services/aiService');
+const latexService = require('../services/latexService');
 
 const ATS_SYSTEM_PROMPT = `You are a strict ATS (Applicant Tracking System) parser that replicates the exact parsing behavior of enterprise ATS platforms: Workday, Greenhouse, Taleo, Lever, and iCIMS.
 
@@ -200,7 +201,33 @@ RULES:
     }
 }
 
+async function compileLatex(req, res) {
+    try {
+        const { latexCode } = req.body;
+        if (!latexCode) {
+            return res.status(400).json({ error: 'LaTeX code is required' });
+        }
+
+        const { texPath, pdfPath } = await latexService.compileLatexToPdf(latexCode);
+        
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="resume.pdf"');
+        
+        const fs = require('fs');
+        const pdfBuffer = fs.readFileSync(pdfPath);
+        res.send(pdfBuffer);
+
+        // Cleanup after sending
+        latexService.cleanupFiles([texPath, pdfPath]);
+
+    } catch (err) {
+        console.error('LaTeX Compile Error:', err.message);
+        res.status(500).json({ error: err.message || 'Failed to compile LaTeX' });
+    }
+}
+
 module.exports = {
     analyzeResume,
-    generateLatex
+    generateLatex,
+    compileLatex
 };
