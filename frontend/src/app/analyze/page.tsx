@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import {
   UploadCloud, Cpu, Code, CheckCircle, AlertTriangle,
-  FileText, Check, XCircle, Info, ChevronDown, ChevronUp, ArrowLeft, Sparkles
+  Check, XCircle, Info, ChevronDown, ChevronUp, ArrowLeft, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -14,7 +14,7 @@ type IssueType = 'error' | 'warning' | 'ok';
 interface AtsFlag { severity: Severity; issue: string; }
 interface FormattingIssue { type: IssueType; message: string; }
 interface Analysis {
-  parsed: Record<string, any>;
+  parsed: Record<string, unknown>;
   sections_detected: Record<string, boolean>;
   ats_score: number;
   verdict: 'LIKELY_PASS' | 'BORDERLINE' | 'LIKELY_REJECT';
@@ -107,7 +107,7 @@ export default function AnalyzePage() {
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
       setAnalysis(data.analysis);
       setRawText(data.rawText || '');
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Analysis failed'); }
     finally { setIsAnalyzing(false); }
   };
 
@@ -123,7 +123,7 @@ export default function AnalyzePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'LaTeX generation failed');
       setLatexCode(data.latexCode);
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'LaTeX generation failed'); }
     finally { setIsGenerating(false); }
   };
 
