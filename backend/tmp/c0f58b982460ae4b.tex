@@ -1,0 +1,99 @@
+```latex
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% Remove page numbers
+\pagenumbering{gobble}
+
+% Set up hyperlinks without color boxes
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black
+}
+
+% Custom commands
+\newcommand{\sectionheader}[1]{%
+    \par\addtolength{\topsep}{0.5\baselineskip}%
+    {\large\textbf{\uppercase{#1}}}\par%
+    \nopagebreak\vspace{-1em}\nopagebreak\hrule height 0.5pt\endgraf%
+    \nopagebreak\vspace{0.25em}\nopagebreak}
+
+\begin{document}
+
+% Name - centered and prominent
+\vspace{-0.5em}
+{\LARGE\textbf{Srishti Rawat}}\par
+\vspace{0.25em}
+
+% Contact Information - single line format for ATS
+rawat.srishti1010@gmail.com \textbullet\ 9084321127 \textbullet\ Ghaziabad, UP \textbullet\ \href{https://linkedin.com/in/srishtirwt}{linkedin.com/in/srishtirwt} \textbullet\ \href{https://github.com/SrishtiDev}{github.com/SrishtiDev}\par
+\vspace{0.5em}
+
+% Summary
+\sectionheader{Summary}
+Full-stack developer with hands-on experience in Java Spring Boot, React, and Next.js, currently pursuing B.Tech in Computer Science (CGPA: 8.5) at ABES Engineering College. Proficient in building RESTful APIs, deploying production-grade web applications, and integrating AI APIs. Demonstrated ability to collaborate effectively in team environments and adapt to agile development methodologies. Actively seeking software engineering roles targeting backend and full-stack positions.\par
+
+% Experience
+\sectionheader{Experience}
+\textbf{Software Development Projects} \hfill \textit{Academic \& Self-Initiated} \hfill Present\\
+Collaborated with team members on full-stack development projects, participated in code reviews and pair programming sessions, and followed agile principles including sprint planning and iterative development cycles. Applied service-layer architecture patterns and OOP concepts to build maintainable and scalable applications.\par
+
+% Education
+\sectionheader{Education}
+\textbf{ABES Engineering College} \hfill Ghaziabad, UP\\
+B.Tech in Computer Science (AKTU) \hfill Expected July 2027\\
+CGPA: 8.5/10.0\par
+\vspace{0.5em}
+\textbf{Jawahar Navodaya Vidyalaya} \hfill Nainital, UK\\
+Class 12th (CBSE) \hfill 2022 \textbar\ 88.6\%\par
+Class 10th (CBSE) \hfill 2020 \textbar\ 93.6\%\par
+
+% Skills
+\sectionheader{Skills}
+\textbf{Programming Languages:} Java, JavaScript, SQL, HTML5, CSS3\\
+\textbf{Frameworks \& Libraries:} Spring Boot, Spring Framework, React, Next.js, Tailwind CSS, Framer Motion\\
+\textbf{Databases:} MySQL, SQL (DDL/DML, Joins, Aggregates)\\
+\textbf{Developer Tools:} Git, GitHub, IntelliJ IDEA, VS Code, Eclipse, Vercel\\
+\textbf{Concepts:} REST API Design, OOP, CRUD Operations, Service-Layer Architecture, Data Structures \& Algorithms, Agile Methodologies, MVC Architecture\par
+
+% Projects
+\sectionheader{Projects}
+\textbf{DEA - Discovery \& Execution Assistant} \hfill \href{https://github.com/SrishtiDev/DEA}{github.com/SrishtiDev/DEA}\\
+\textit{Next.js, React, Tailwind CSS, NVIDIA NIM API, Vercel} \hfill May 2026\\
+\begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+    \item Engineered an AI-powered project discovery engine using Next.js and NVIDIA NIM reasoning models, delivering tailored project ideas, architecture breakdowns, and market trends from user-provided tech stacks
+    \item Architected secure server-side API routes for all AI model calls, achieving zero client-side key exposure and a clean separation of backend logic
+    \item Built a production-ready full-stack application with glassmorphism UI and Framer Motion parallax animations; deployed on Vercel with full CI/CD pipeline via GitHub
+\end{itemize}
+\vspace{0.5em}
+\textbf{Hospital Management System} \hfill \href{https://github.com/SrishtiDev/hospital-management}{github.com/SrishtiDev/hospital-management}\\
+\textit{Java, Spring Boot, REST API, MySQL} \hfill November 2025\\
+\begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+    \item Developed a full-featured Hospital Management System with Spring Boot REST APIs managing patient registration, doctor scheduling, and appointment booking workflows
+    \item Designed a normalized MySQL schema with optimized CRUD operations; implemented service-layer architecture with input validation to ensure data integrity
+    \item Structured the application using MVC pattern with clear separation of Controller, Service, and Repository layers, enabling maintainable and scalable codebase
+\end{itemize}\par
+
+% Certifications
+\sectionheader{Certifications}
+\begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+    \item Full Stack Web Development (MERN) \textbar\ Apna College \hfill November 2024
+    \item Programming using Java \textbar\ Infosys SpringBoard \hfill May 2025
+\end{itemize}\par
+
+% Leadership \& Extracurricular
+\sectionheader{Leadership \& Extracurricular}
+\textbf{Core Team Member - ABES ACM Student Chapter} \hfill May 2024 - Present\\
+\begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+    \item Organized and coordinated technical events, coding workshops, and hackathons for 200+ student participants, demonstrating strong collaboration and leadership skills
+    \item Contributed to team-based technical initiatives and promoted software development best practices within the student community
+\end{itemize}\par
+
+\end{document}

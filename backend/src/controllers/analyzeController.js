@@ -141,15 +141,15 @@ async function analyzeResume(req, res) {
             process.env.NVIDIA_API_KEY_ANALYZE
         );
 
-        // Clean any markdown fences just in case
-        const cleaned = rawResult
-            .replace(/^```json\s*/i, '')
-            .replace(/^```\s*/i, '')
-            .replace(/```$/i, '')
-            .trim();
+        let jsonString = rawResult;
+        const firstBrace = rawResult.indexOf('{');
+        const lastBrace = rawResult.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            jsonString = rawResult.substring(firstBrace, lastBrace + 1);
+        }
 
         // Validate it's parseable JSON before sending
-        const parsed = JSON.parse(cleaned);
+        const parsed = JSON.parse(jsonString);
 
         res.json({ analysis: parsed, rawText });
 
