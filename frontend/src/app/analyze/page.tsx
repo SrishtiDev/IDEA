@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { parse } from 'partial-json';
+
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8040';
 
 type Severity = 'high' | 'medium' | 'low';
@@ -37,7 +39,7 @@ function ScoreRing({ score }: { score: number }) {
           style={{ filter: `drop-shadow(0 0 8px ${color}66)`, transition: 'stroke-dasharray 1s ease' }} />
       </svg>
       <div className="flex flex-col items-center">
-        <span className="text-3xl font-light" style={{ color }}>{score}</span>
+        <span className="text-3xl font-light" style={{ color }}>{score || 0}</span>
         <span className="text-[10px] text-[#444] uppercase tracking-widest font-mono">/ 100</span>
       </div>
     </div>
@@ -80,6 +82,37 @@ const issueIcon: Record<IssueType, React.ReactNode> = {
   ok: <CheckCircle size={12} className="text-green-400 shrink-0 mt-0.5" />,
 };
 
+function LoadingState({ analysis }: { analysis: Analysis | null }) {
+  // If analysis data starts coming in, we don't need the generic steps anymore
+  // But we still show a subtle loading state if it's streaming.
+  if (analysis) {
+    return (
+      <div className="flex flex-col items-center justify-center py-6 border-b border-white/5 mb-6">
+        <Cpu size={24} className="animate-spin text-violet-400 mb-3" />
+        <p className="text-xs text-white font-mono uppercase tracking-widest animate-pulse">
+          Receiving Stream...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+      <Cpu size={32} className="animate-spin text-violet-400 mb-6" />
+      <div className="h-8 flex items-center justify-center overflow-hidden mb-2">
+        <p className="text-sm text-white font-mono uppercase tracking-widest animate-pulse">
+          Connecting to Model...
+        </p>
+      </div>
+      <div className="h-4 flex items-center justify-center overflow-hidden">
+        <p className="text-xs text-[#666] animate-pulse">
+          Preparing analysis stream
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function AnalyzePage() {
   const [file, setFile] = useState<File | null>(null);
   const [jd, setJd] = useState('');
@@ -89,42 +122,117 @@ export default function AnalyzePage() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [rawText, setRawText] = useState('');
 
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [latexCode, setLatexCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const generatePdfInBackground = async (analysisData: Analysis, rawData: string) => {
+    setIsGeneratingPdf(true);
+    setPdfUrl(null);
+    try {
+      // 1. Generate LaTeX
+      const latexRes = await fetch(`${API}/api/analyze/latex`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysis: analysisData, rawText: rawData }),
+      });
+      const latexData = await latexRes.json();
+      if (!latexRes.ok) throw new Error(latexData.error || 'LaTeX generation failed');
+      
+      // 2. Compile PDF
+      const compileRes = await fetch(`${API}/api/analyze/compile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latexCode: latexData.latexCode }),
+      });
+      if (!compileRes.ok) throw new Error('PDF compilation failed');
+      
+      const blob = await compileRes.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+    } catch (err: unknown) {
+      console.error('Background PDF Generation Error:', err);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
-    setIsAnalyzing(true); setAnalysis(null); setLatexCode(null); setError(null);
+    setIsAnalyzing(true); setAnalysis(null); setPdfUrl(null); setError(null);
     const form = new FormData();
     form.append('resume', file);
     if (jd.trim()) form.append('jobDescription', jd);
+    
     try {
       const res = await fetch(`${API}/api/analyze`, { method: 'POST', body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Analysis failed');
-      setAnalysis(data.analysis);
-      setRawText(data.rawText || '');
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Analysis failed'); }
-    finally { setIsAnalyzing(false); }
-  };
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Analysis failed');
+      }
 
-  const handleGenerateLatex = async () => {
-    if (!analysis) return;
-    setIsGenerating(true); setError(null);
-    try {
-      const res = await fetch(`${API}/api/analyze/latex`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ analysis, rawText }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'LaTeX generation failed');
-      setLatexCode(data.latexCode);
-    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'LaTeX generation failed'); }
-    finally { setIsGenerating(false); }
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error('Failed to read stream');
+      const decoder = new TextDecoder();
+      
+      let fullJsonStr = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr === '[DONE]') break;
+            
+            try {
+              const parsedEvent = JSON.parse(dataStr);
+              if (parsedEvent.chunk) {
+                fullJsonStr += parsedEvent.chunk;
+                
+                // Extract json object if it has markdown ticks
+                let cleanStr = fullJsonStr;
+                const firstBrace = fullJsonStr.indexOf('{');
+                if (firstBrace !== -1) cleanStr = fullJsonStr.substring(firstBrace);
+                
+                try {
+                  const partialData = parse(cleanStr);
+                  setAnalysis(partialData as Analysis);
+                } catch (e) {
+                  // Wait for more valid json
+                }
+              }
+              
+              if (parsedEvent.rawText) {
+                setRawText(parsedEvent.rawText);
+                
+                // Finalize parsing and generate PDF
+                let cleanStr = fullJsonStr;
+                const firstBrace = fullJsonStr.indexOf('{');
+                const lastBrace = fullJsonStr.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1) {
+                  cleanStr = fullJsonStr.substring(firstBrace, lastBrace + 1);
+                }
+                const finalAnalysis = parse(cleanStr) as Analysis;
+                setAnalysis(finalAnalysis);
+                generatePdfInBackground(finalAnalysis, parsedEvent.rawText);
+              }
+            } catch (e) {
+               // ignore invalid events
+            }
+          }
+        }
+      }
+    } catch (err: unknown) { 
+      setError(err instanceof Error ? err.message : 'Analysis failed'); 
+    } finally { 
+      setIsAnalyzing(false); 
+    }
   };
 
   return (
@@ -224,13 +332,7 @@ export default function AnalyzePage() {
             )}
 
             {isAnalyzing && (
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
-                <Cpu size={32} className="animate-spin text-violet-400 mb-6" />
-                <p className="text-sm text-white font-mono uppercase tracking-widest mb-2">
-                  Parsing & Scoring Resume...
-                </p>
-                <p className="text-xs text-[#666]">Comparing against enterprise ATS rulesets</p>
-              </div>
+              <LoadingState analysis={analysis} />
             )}
 
             {analysis && (
@@ -239,14 +341,14 @@ export default function AnalyzePage() {
                 <div className="glass-strong rounded-3xl p-6 border border-white/8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                   <ScoreRing score={analysis.ats_score} />
                   <div className="flex-1">
-                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono mb-2 ${verdictStyle[analysis.verdict].bg} ${verdictStyle[analysis.verdict].color}`}>
-                      {analysis.verdict.replace(/_/g, ' ')}
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono mb-2 ${analysis.verdict ? verdictStyle[analysis.verdict]?.bg : ''} ${analysis.verdict ? verdictStyle[analysis.verdict]?.color : ''}`}>
+                      {analysis.verdict?.replace(/_/g, ' ') || 'ANALYZING...'}
                     </div>
                     <p className="text-sm text-[#888] leading-relaxed max-w-sm">{analysis.verdict_reason}</p>
                   </div>
                   {/* Section detections */}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-2 shrink-0">
-                    {Object.entries(analysis.sections_detected).map(([k, v]) => (
+                    {Object.entries(analysis.sections_detected || {}).map(([k, v]) => (
                       <div key={k} className="flex items-center gap-1.5">
                         {v ? <CheckCircle size={10} className="text-green-400" /> : <XCircle size={10} className="text-[#333]" />}
                         <span className="text-[10px] font-mono capitalize" style={{ color: v ? '#aaa' : '#444' }}>
@@ -293,19 +395,19 @@ export default function AnalyzePage() {
                     title={<>Keyword Match — <span className="text-white ml-1">{analysis.keyword_match.match_score}%</span></>}
                     defaultOpen>
                     <div className="flex flex-col gap-5">
-                      {analysis.keyword_match.missing.length > 0 && (
+                      {analysis.keyword_match?.missing?.length > 0 && (
                         <div>
                           <p className="text-[10px] text-red-400 font-mono uppercase mb-2">Missing ({analysis.keyword_match.missing.length})</p>
                           <div className="flex flex-wrap gap-2">{analysis.keyword_match.missing.map((kw, i) => <Chip key={i} label={kw} color="text-red-400 border-red-400/30 bg-red-400/5" />)}</div>
                         </div>
                       )}
-                      {analysis.keyword_match.found.length > 0 && (
+                      {analysis.keyword_match?.found?.length > 0 && (
                         <div>
                           <p className="text-[10px] text-green-400 font-mono uppercase mb-2">Found ({analysis.keyword_match.found.length})</p>
                           <div className="flex flex-wrap gap-2">{analysis.keyword_match.found.map((kw, i) => <Chip key={i} label={kw} color="text-green-400 border-green-400/30 bg-green-400/5" />)}</div>
                         </div>
                       )}
-                      {analysis.keyword_match.partial.length > 0 && (
+                      {analysis.keyword_match?.partial?.length > 0 && (
                         <div>
                           <p className="text-[10px] text-yellow-400 font-mono uppercase mb-2">Partial ({analysis.keyword_match.partial.length})</p>
                           <div className="flex flex-wrap gap-2">{analysis.keyword_match.partial.map((kw, i) => <Chip key={i} label={kw} color="text-yellow-400 border-yellow-400/30 bg-yellow-400/5" />)}</div>
@@ -329,45 +431,20 @@ export default function AnalyzePage() {
                   </Collapsible>
                 )}
 
-                {/* Generate LaTeX */}
-                <button onClick={handleGenerateLatex} disabled={isGenerating}
-                  className="w-full glass-strong rounded-2xl border border-violet-500/30 text-white text-xs font-semibold py-4 uppercase tracking-widest hover:bg-violet-500/10 transition-all disabled:opacity-40 flex justify-center items-center gap-2">
-                  {isGenerating
-                    ? <><Cpu size={13} className="animate-spin" /> Generating LaTeX...</>
-                    : <><Code size={13} className="text-violet-400" /> Generate ATS-Optimized LaTeX</>}
-                </button>
-
-                {/* Compile & Preview */}
-                {latexCode && (
-                  <button
-                    onClick={() => {
-                      sessionStorage.setItem('hireorbit_latex', latexCode);
-                      window.location.href = '/compile';
-                    }}
-                    className="w-full glass-strong rounded-2xl border border-white/20 text-white text-xs font-semibold py-4 uppercase tracking-widest hover:bg-white/10 transition-all flex justify-center items-center gap-2"
-                  >
-                    <Code size={13} /> Compile &amp; Preview PDF
-                  </button>
-                )}
-
-                {/* LaTeX output */}
-                {latexCode && (
-                  <div className="glass rounded-2xl p-5">
-                    <div className="flex justify-between items-center mb-4">
-                      <p className="text-[10px] text-[#555] font-mono uppercase tracking-widest flex items-center gap-2">
-                        <Code size={10} className="text-violet-400" /> LaTeX Output
-                      </p>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(latexCode); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                        className="text-[10px] font-mono glass px-3 py-1.5 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center gap-1.5">
-                        {copied ? <><Check size={10} className="text-green-400" /> COPIED</> : 'COPY'}
-                      </button>
-                    </div>
-                    <pre className="bg-black/50 border border-white/5 rounded-xl p-4 text-xs font-mono text-[#888] overflow-auto max-h-[500px]">
-                      <code>{latexCode}</code>
-                    </pre>
+                {/* Generate PDF Button */}
+                {isGeneratingPdf ? (
+                  <div className="w-full glass-strong rounded-2xl border border-white/10 text-[#888] text-xs font-semibold py-4 uppercase tracking-widest flex justify-center items-center gap-2">
+                    <Cpu size={13} className="animate-spin text-violet-400" /> Building Enhanced PDF...
                   </div>
-                )}
+                ) : pdfUrl ? (
+                  <a
+                    href={pdfUrl}
+                    download="ATS_Optimized_Resume.pdf"
+                    className="w-full glass-strong rounded-2xl border border-green-500/30 text-green-400 hover:text-green-300 text-xs font-semibold py-4 uppercase tracking-widest hover:bg-green-500/10 transition-all flex justify-center items-center gap-2"
+                  >
+                    <CheckCircle size={13} /> Download Enhanced Resume (PDF)
+                  </a>
+                ) : null}
               </>
             )}
           </main>

@@ -1,6 +1,9 @@
 const pdfService = require('../services/pdfService');
 const aiService = require('../services/aiService');
 const latexService = require('../services/latexService');
+const Groq = require("groq-sdk");
+
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const ATS_SYSTEM_PROMPT = `You are a strict ATS (Applicant Tracking System) parser that replicates the exact parsing behavior of enterprise ATS platforms: Workday, Greenhouse, Taleo, Lever, and iCIMS.
 
@@ -118,44 +121,80 @@ RECOMMENDATIONS
 - Do not give generic advice — every recommendation must reference something specific from this resume
 - Prioritize fixes that will most improve ATS score`;
 
+const crypto = require('crypto');
+const cache = new Map(); // Simple in-memory cache
+
 async function analyzeResume(req, res) {
     if (!req.file) {
         return res.status(400).json({ error: 'No resume uploaded' });
     }
 
     try {
-        const jdText = req.body.jobDescription || null;
-
-        // 1. Extract text from PDF
+        const jdText = req.body.jobDescription || '';
         const rawText = await pdfService.extractTextFromPdf(req.file.buffer);
 
-        // 2. Single comprehensive ATS analysis call
+        // Cache Check
+        const key = crypto.createHash('sha256').update(rawText + jdText).digest('hex');
+        const cached = cache.get(key);
+        
+        if (cached) {
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.write(`data: ${JSON.stringify({ chunk: cached.analysisString })}\n\n`);
+            res.write(`data: ${JSON.stringify({ rawText: rawText })}\n\n`);
+            res.write('data: [DONE]\n\n');
+            return res.end();
+        }
+
         const userPrompt = jdText
             ? `RESUME:\n${rawText}\n\nJOB DESCRIPTION:\n${jdText}`
             : `RESUME:\n${rawText}`;
 
-        const rawResult = await aiService.callNimApi(
-            "nvidia/llama-3.3-nemotron-super-49b-v1",
-            ATS_SYSTEM_PROMPT,
-            userPrompt,
-            process.env.NVIDIA_API_KEY_ANALYZE
-        );
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
 
-        let jsonString = rawResult;
-        const firstBrace = rawResult.indexOf('{');
-        const lastBrace = rawResult.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1) {
-            jsonString = rawResult.substring(firstBrace, lastBrace + 1);
+        let fullJsonStr = '';
+
+        const stream = await client.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                { role: "system", content: ATS_SYSTEM_PROMPT },
+                { role: "user", content: userPrompt }
+            ],
+            temperature: 0.2,
+            max_tokens: 4096,
+            stream: true,
+        });
+
+        for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || "";
+            if (content) {
+                fullJsonStr += content;
+                res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+            }
         }
 
-        // Validate it's parseable JSON before sending
-        const parsed = JSON.parse(jsonString);
+        res.write(`data: ${JSON.stringify({ rawText: rawText })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        res.end();
 
-        res.json({ analysis: parsed, rawText });
+        // Extract JSON block if surrounded by markdown fences (Llama sometimes does this)
+        let cleanJsonStr = fullJsonStr;
+        const firstBrace = fullJsonStr.indexOf('{');
+        const lastBrace = fullJsonStr.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            cleanJsonStr = fullJsonStr.substring(firstBrace, lastBrace + 1);
+        }
+
+        cache.set(key, { analysisString: cleanJsonStr });
 
     } catch (err) {
         console.error("Analysis Error:", err.message);
-        res.status(500).json({ error: err.message || "An error occurred during analysis" });
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message || "An error occurred during analysis" });
+        } else {
+            res.end();
+        }
     }
 }
 
