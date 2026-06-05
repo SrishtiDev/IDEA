@@ -4,6 +4,7 @@ const latexService = require('../services/latexService');
 const Groq = require("groq-sdk");
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const latexClient = new Groq({ apiKey: process.env.GROQ_API_KEY_LATEX });
 
 const ATS_SYSTEM_PROMPT = `You are a strict ATS (Applicant Tracking System) parser that replicates the exact parsing behavior of enterprise ATS platforms: Workday, Greenhouse, Taleo, Lever, and iCIMS.
 
@@ -95,7 +96,13 @@ FORMATTING & STRUCTURE FLAGS
 - Non-standard Unicode symbols as bullet points → low severity
 - Fancy templates (Canva, Novoresume) → high severity flag
 
+KEYWORD MATCH (only if job description is provided)
+- Extract all role-specific keywords from JD
+- Calculate match_score as an INTEGER between 0 and 100: match_score = Math.round((found_count / total_JD_keywords) * 100)
+- DO NOT output a decimal like 0.15 or 0.25. If 6 out of 24 are found, the match_score is 25.
+
 ATS SCORE CALCULATION (0-100)
+Step 1: Calculate Base Formatting Score (0-100)
 - Contact info complete: +15
 - All core sections present: +15
 - Standard section headings used: +10
@@ -107,14 +114,16 @@ ATS SCORE CALCULATION (0-100)
 - LinkedIn present: +5
 Deduct: high flag (-10), medium flag (-5), low flag (-2). Cap 0-100.
 
+Step 2: Calculate Final ats_score
+- IF NO job description is provided: ats_score = Base Formatting Score.
+- IF a job description IS provided: Keyword matching MUST heavily impact the final score. 
+  ats_score = Math.round((Base Formatting Score * 0.4) + (match_score * 0.6))
+  Example: If Base Formatting is 90 and match_score is 25, final ats_score = 51.
+
 VERDICT THRESHOLDS
 - 70-100 → LIKELY_PASS
 - 45-69 → BORDERLINE
 - 0-44 → LIKELY_REJECT
-
-KEYWORD MATCH (only if job description is provided)
-- Extract all role-specific keywords from JD
-- match_score = (found + 0.5 * partial) / total JD keywords * 100
 
 RECOMMENDATIONS
 - Always give 3-6 specific, actionable fixes based on what was actually found
@@ -209,7 +218,9 @@ async function generateLatex(req, res) {
         const latexSystemPrompt = `You are an expert LaTeX resume editor. Follow rules strictly.
 RULES:
 - Output a complete, compilable LaTeX resume document
-- Use the \\documentclass{article} with appropriate geometry and font packages
+- Use the \\documentclass{article} and MUST include \\usepackage[margin=0.5in]{geometry} to maximize space
+- DO NOT use \\maketitle. Format the name and contact info manually to prevent blank first pages
+- Ensure tight spacing. Do not use \\newpage, \\pagebreak, or \\clearpage. Fit on 1 page if possible
 - Structure it with standard resume sections matching what was detected in the analysis
 - Apply ALL recommendations from the ATS analysis
 - Include ALL skills, experience, education from the parsed data
@@ -218,12 +229,16 @@ RULES:
 
         const latexUserPrompt = `ATS ANALYSIS RESULT:\n${JSON.stringify(analysis, null, 2)}\n\nORIGINAL RESUME TEXT:\n${rawText || ''}\n\nGenerate a complete, ATS-optimized LaTeX resume based on the parsed data and applying all recommendations.`;
 
-        let newLatex = await aiService.callNimApi(
-            "minimaxai/minimax-m2.7",
-            latexSystemPrompt,
-            latexUserPrompt,
-            process.env.MINIMAX_API_KEY
-        );
+        const response = await latexClient.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                { role: "system", content: latexSystemPrompt },
+                { role: "user", content: latexUserPrompt }
+            ],
+            temperature: 0.2,
+            max_tokens: 4096
+        });
+        let newLatex = response.choices[0].message.content;
 
         // Clean markdown fences
         newLatex = newLatex
