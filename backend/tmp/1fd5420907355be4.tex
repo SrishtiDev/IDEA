@@ -1,0 +1,108 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[margin=0.75in, left=0.75in, right=0.75in, top=0.6in, bottom=0.6in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{times}
+
+\setlist[itemize]{itemsep=0pt, topsep=2pt, partopsep=0pt, parsep=0pt, leftmargin=1.5em}
+\setlist[enumerate]{itemsep=0pt, topsep=2pt, partopsep=0pt, parsep=0pt}
+
+\begin{document}
+
+\pagestyle{empty}
+
+% Name
+\textbf{\LARGE Srishti Rawat}\\[6pt]
+
+% Contact Information
+9084321127 \textbullet\ \hrefmailto{rawat.srishti1010@gmail.com}{rawat.srishti1010@gmail.com} \textbullet\ \href{https://linkedin.com/in/srishtirwt}{linkedin.com/in/srishtirwt} \textbullet\ \href{https://github.com/SrishtiDev}{github.com/SrishtiDev}
+
+\hrule height0.5pt\vskip4pt
+
+% Summary
+\section*{Summary}
+Full-stack software engineer (B.Tech CS, CGPA: 8.05) building AI-native applications with TypeScript, Java, and Node.js. Shipped multi-model LLM pipelines, Dockerized backends, and production REST APIs. Open source contributor to Vercel AI SDK (24k+ stars) and Mastra AI Agent Framework. Strong DSA foundation in Java; product engineer mindset focused on customer impact over code shipped.
+
+% Technical Skills
+\section*{Technical Skills}
+\begin{itemize}
+\item \textbf{Languages:} Java, JavaScript, TypeScript, SQL, HTML5, CSS3
+\item \textbf{Frameworks \& Libraries:} Spring Boot, React, Next.js, Express.js, Tailwind CSS, Framer Motion
+\item \textbf{Databases:} MySQL, MongoDB
+\item \textbf{AI \& Agentic:} NVIDIA NIM, Vercel AI SDK, LangChain.js, RAG (ChromaDB), OpenAI-compatible APIs, Prompt Engineering, Agentic Coding (Claude Code, Cursor)
+\item \textbf{Tools \& Platforms:} Git, GitHub, Docker, Vercel, Postman, IntelliJ IDEA, VS Code
+\item \textbf{Concepts:} DSA in Java, REST API Design, OOP, MVC Architecture, System Design
+\end{itemize}
+
+% Experience
+\section*{Experience}
+
+\subsection*{HireOrbit | Next.js 14, Node.js, Express.js, Docker, NVIDIA NIM \textbar\ May 2026}
+\begin{itemize}
+\item Architected a 3-model AI pipeline chaining Llama 3.1-8B (extraction), Llama Nemotron-49B (ATS scoring), and MiniMax M2.7 (LaTeX generation) via NVIDIA NIM to simulate enterprise ATS systems like Workday.
+\item Enforced strict JSON schema outputs from LLMs for deterministic resume parsing and keyword gap detection; implemented resilient error handling to sanitize unpredictable model outputs.
+\item Containerized the Tectonic LaTeX compiler in Docker, spawning async OS-level child processes on Node.js to compile AI-generated resumes into downloadable, ATS-optimized PDFs at request time.
+\end{itemize}
+
+\subsection*{DEA - Discovery \& Execution Assistant | Next.js 15, React 19, Tailwind CSS v4, NVIDIA NIM, Minimax, Cheerio \textbar\ May 2026}
+\begin{itemize}
+\item Engineered a full-stack AI discovery engine delivering tailored project ideas and architectural breakdowns via NVIDIA NIM and Minimax reasoning models from user-provided tech stacks.
+\item Built a server-side scraping pipeline using Cheerio to aggregate real-time GitHub trending data as live signals for AI recommendations; enforced all LLM calls server-side with zero client-side credential exposure.
+\end{itemize}
+
+\subsection*{Hospital Management System | Java, Spring Boot, REST API, MySQL \textbar\ Nov 2025}
+\begin{itemize}
+\item Built Spring Boot REST APIs for patient registration, doctor scheduling, and appointment workflows with a normalized MySQL schema; applied strict Controller-Service-Repository separation with transactional service boundaries.
+\end{itemize}
+
+% Open Source Contributions
+\section*{Open Source Contributions}
+
+\subsection*{Vercel AI SDK | github.com/vercel/ai \textbar\ 24k+ stars \textbar\ June 2026}
+\begin{itemize}
+\item Fixed a streaming bug in @ai-sdk/openai-compatible where txt-0 was hardcoded for all text segments; introduced an incrementing textPartIndex with proper text-end closure at tool call boundaries. (Issue \#15789)
+\end{itemize}
+
+\subsection*{Mastra AI Agent Framework | github.com/mastra-ai/mastra \textbar\ 6k+ stars \textbar\ June 2026}
+\begin{itemize}
+\item Implemented a date range picker on the /evaluation page of Mastra Studio, bringing it to parity with /metrics and /observability for time-filtered AI agent evaluation data querying.
+\end{itemize}
+
+% Education
+\section*{Education}
+
+\subsection*{ABES Engineering College, Ghaziabad, UP}
+B.Tech in Computer Science (AKTU) \textbar\ CGPA: 8.05 \textbar\ Oct 2023 -- July 2027
+
+\subsection*{Jawahar Navodaya Vidyalaya, Nainital}
+Class 12th (CBSE) -- 88.6\% \textbar\ Class 10th (CBSE) -- 93.6\% \textbar\ 2022 / 2020
+
+% Achievements
+\section*{Achievements}
+
+\subsection*{Smart India Hackathon (SIH) 2025 -- Top 50 Finalist \textbar\ 2025}
+\begin{itemize}
+\item Selected among Top 50 teams out of 300+ across two elimination rounds at ABES Engineering College; led Team BeHuman to build an AI-driven Train Scheduling solution for Kochi Metro Rail Limited (KMRL).
+\end{itemize}
+
+% Certifications
+\section*{Certifications}
+
+\begin{itemize}
+\item Full Stack Web Development (MERN) -- Apna College, Nov 2024
+\item Programming using Java -- Infosys SpringBoard, May 2025
+\end{itemize}
+
+% Extracurricular
+\section*{Extracurricular}
+
+\subsection*{Core Team Member, ABES ACM Student Chapter \textbar\ May 2024 -- May 2026}
+\begin{itemize}
+\item Planned and executed coding workshops, hackathons, and tech talks for 200+ participants; managed end-to-end event logistics as part of a 10-member cross-functional core team.
+\end{itemize}
+
+\end{document}
