@@ -202,7 +202,7 @@ export default function AnalyzePage() {
                 try {
                   const partialData = parse(cleanStr);
                   setAnalysis(partialData as Analysis);
-                } catch (_e) {
+                } catch {
                   // Wait for more valid json
                 }
               }
@@ -220,7 +220,7 @@ export default function AnalyzePage() {
                 setAnalysis(finalAnalysis);
                 generatePdfInBackground(finalAnalysis, parsedEvent.rawText);
               }
-            } catch (_e) {
+            } catch {
                // ignore invalid events
             }
           }
