@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import {
-  UploadCloud, Cpu, Code, CheckCircle, AlertTriangle,
-  Check, XCircle, Info, ChevronDown, ChevronUp, ArrowLeft, Sparkles
+  UploadCloud, Cpu, CheckCircle, AlertTriangle,
+  XCircle, Info, ChevronDown, ChevronUp, ArrowLeft, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -120,7 +120,6 @@ export default function AnalyzePage() {
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [rawText, setRawText] = useState('');
 
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -203,13 +202,12 @@ export default function AnalyzePage() {
                 try {
                   const partialData = parse(cleanStr);
                   setAnalysis(partialData as Analysis);
-                } catch (e) {
+                } catch (_e) {
                   // Wait for more valid json
                 }
               }
               
               if (parsedEvent.rawText) {
-                setRawText(parsedEvent.rawText);
                 
                 // Finalize parsing and generate PDF
                 let cleanStr = fullJsonStr;
@@ -222,7 +220,7 @@ export default function AnalyzePage() {
                 setAnalysis(finalAnalysis);
                 generatePdfInBackground(finalAnalysis, parsedEvent.rawText);
               }
-            } catch (e) {
+            } catch (_e) {
                // ignore invalid events
             }
           }
