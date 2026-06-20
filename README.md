@@ -6,18 +6,18 @@
 [![GitHub](https://img.shields.io/badge/GitHub-SrishtiDev%2FHireOrbit-181717?style=for-the-badge&logo=github)](https://github.com/SrishtiDev/HireOrbit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-HireOrbit simulates the Applicant Tracking Systems (ATS) used by platforms like Workday — parsing your resume, scoring it against a job description, identifying keyword gaps, and generating a professionally formatted, ATS-optimized PDF. Powered by a chained multi-model LLM pipeline.
+HireOrbit simulates the Applicant Tracking Systems (ATS) used by platforms like Workday — parsing your resume, scoring it against a job description, identifying keyword gaps, and generating a professionally formatted, ATS-optimized PDF. Powered by the Llama 3.3 70B model via Groq for ultra-fast, deterministic inference.
 
 ---
 
 ## ✨ Features
 
 - **Enterprise ATS Simulation** — Mirrors real-world ATS workflows: resume parsing, keyword extraction, scoring, and gap analysis.
-- **Multi-Model AI Pipeline** — Three specialized models, each handling a distinct stage of the pipeline.
+- **Lightning-Fast LLM Inference** — Powered by Groq and the Llama 3.3 70B model to instantly process resumes and provide real-time feedback.
 - **Deterministic Resume Parsing** — Strict JSON schema enforcement ensures reliable extraction of skills, experience, education, projects, and keywords.
 - **ATS Match Scoring** — Resume-to-job-description alignment score with missing keyword detection and actionable recommendations.
 - **AI-Powered Resume Generation** — Dynamically generates ATS-optimized LaTeX resumes and exports them as polished PDFs.
-- **Dockerized PDF Compilation** — Tectonic LaTeX compiler containerized via Docker for reproducible, dependency-free document rendering.
+- **Cloud PDF Compilation** — Uses a cloud-based LaTeX compilation API for reproducible, dependency-free document rendering.
 
 ---
 
@@ -27,26 +27,19 @@ HireOrbit simulates the Applicant Tracking Systems (ATS) used by platforms like 
 Resume + Job Description
             │
             ▼
-    Llama 3.1 8B
-  (Information Extraction)
-            │
-            ▼
-  Structured JSON Output
-            │
-            ▼
- Llama 3.3 Nemotron 49B
-  (ATS Analysis & Scoring)
+ Llama 3.3 70B (via Groq)
+  (Extraction & ATS Scoring)
             │
             ▼
   ATS Report + Suggestions
             │
             ▼
-      MiniMax M2.7
+ Llama 3.3 70B (via Groq)
   (LaTeX Resume Generation)
             │
             ▼
-    Tectonic Compiler
-         (Docker)
+  Cloud LaTeX API
+    (ytotech.com)
             │
             ▼
        Optimized PDF
@@ -60,8 +53,8 @@ Resume + Job Description
 |---|---|
 | **Frontend** | Next.js 14, React, TypeScript, Tailwind CSS |
 | **Backend** | Node.js, Express.js |
-| **AI Models** | Llama 3.1 8B, Llama 3.3 Nemotron 49B, MiniMax M2.7 (via NVIDIA NIM) |
-| **PDF Pipeline** | Docker, Tectonic LaTeX Compiler, Node.js Child Processes |
+| **AI Models** | Llama 3.3 70B Versatile (via Groq API) |
+| **PDF Pipeline** | Cloud LaTeX API (ytotech.com) |
 
 ---
 
@@ -70,12 +63,12 @@ Resume + Job Description
 ```
 1. Upload Resume
 2. Paste Job Description
-3. Extract Structured Candidate Data     ← Llama 3.1 8B
-4. Calculate ATS Match Score             ← Llama 3.3 Nemotron 49B
+3. Extract Structured Candidate Data     ← Llama 3.3 70B (Groq)
+4. Calculate ATS Match Score             ← Llama 3.3 70B (Groq)
 5. Identify Missing Keywords
 6. Generate Optimization Suggestions
-7. Create ATS-Optimized LaTeX Resume     ← MiniMax M2.7
-8. Compile & Download Professional PDF   ← Tectonic (Docker)
+7. Create ATS-Optimized LaTeX Resume     ← Llama 3.3 70B (Groq)
+8. Compile & Download Professional PDF   ← Cloud LaTeX API
 ```
 
 ---
@@ -85,11 +78,11 @@ Resume + Job Description
 **Reliable LLM Output Parsing**
 LLMs frequently return malformed or inconsistent JSON. HireOrbit enforces strict output schemas and validation layers to guarantee deterministic downstream processing regardless of model variability.
 
-**Multi-Model Orchestration**
-Designed a chained inference pipeline where the structured output of each model becomes the typed input of the next — enabling specialization (extraction → analysis → generation) without losing context between stages.
+**High-Speed AI Inference**
+Leveraged Groq's LPU inference engine with the Llama 3.3 70B model to deliver near-instantaneous resume parsing and generation, providing a snappy user experience.
 
 **Scalable PDF Generation**
-Containerized the entire LaTeX compilation environment using Docker and Tectonic, eliminating host dependency issues and ensuring byte-for-byte reproducible PDF output across all deployments.
+Shifted from local LaTeX compilation to a robust cloud-based compilation API, eliminating heavy host dependencies and ensuring byte-for-byte reproducible PDF output across all environments.
 
 **ATS Optimization Logic**
 Implemented keyword matching and gap detection algorithms that compare candidate profiles against job requirements and generate specific, prioritized improvement suggestions.
@@ -101,8 +94,7 @@ Implemented keyword matching and gap detection algorithms that compare candidate
 ### Prerequisites
 
 - **Node.js** v18+ and npm
-- **Docker & Docker Compose** (recommended)
-- **Tectonic LaTeX engine** — only needed if running the backend locally without Docker (the Dockerfile handles this automatically)
+- **Docker & Docker Compose** (optional)
 
 ---
 
@@ -112,16 +104,15 @@ Create the following `.env` files before running the project.
 
 **`backend/.env`**
 ```env
-NVIDIA_API_KEY_PARSE=your_nvapi_key_here
-NVIDIA_API_KEY_ANALYZE=your_nvapi_key_here
-MINIMAX_API_KEY=your_minimax_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY_LATEX=your_groq_api_key_here
 ```
 
-Get your NVIDIA NIM API keys at [build.nvidia.com](https://build.nvidia.com) and your MiniMax key at [minimaxi.com](https://www.minimaxi.com).
+Get your API keys at [console.groq.com](https://console.groq.com).
 
 **`frontend/.env.local`**
 ```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8040
 ```
 
 ---
@@ -137,7 +128,7 @@ docker-compose up --build
 ```
 
 - Frontend → [http://localhost:3000](http://localhost:3000)
-- Backend → [http://localhost:8080](http://localhost:8080)
+- Backend → [http://localhost:8040](http://localhost:8040)
 
 #### Option B — Local (Manual)
 
