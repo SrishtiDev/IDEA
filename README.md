@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # DEA – Discovery & Execution Assistant
 
 DEA is an intelligence engine built for the future of creation. It helps developers discover and execute personalized project ideas based on their specific tech stack. By leveraging multi-model AI workflows and real-time data, DEA empowers developers to overcome "coder's block" and start building meaningful projects.
@@ -203,4 +202,3 @@ User inputs tech stack
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
->>>>>>> 3e642ade40757e598ef5eefddd0ae27262e3804b
