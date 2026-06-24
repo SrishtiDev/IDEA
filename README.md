@@ -1,172 +1,68 @@
-# HireOrbit 🚀
+# DEA – Discovery & Execution Assistant
 
-> AI-powered resume optimization that thinks like an enterprise ATS.
+DEA is an intelligence engine built for the future of creation. It helps developers discover and execute personalized project ideas based on their specific tech stack. By leveraging multi-model AI workflows and real-time data, DEA empowers developers to overcome "coder's block" and start building meaningful projects.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-hire--orbit--weld.vercel.app-blue?style=for-the-badge)](https://hire-orbit-weld.vercel.app/)
-[![GitHub](https://img.shields.io/badge/GitHub-SrishtiDev%2FHireOrbit-181717?style=for-the-badge&logo=github)](https://github.com/SrishtiDev/HireOrbit)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+## Features
 
-HireOrbit simulates the Applicant Tracking Systems (ATS) used by platforms like Workday — parsing your resume, scoring it against a job description, identifying keyword gaps, and generating a professionally formatted, ATS-optimized PDF. Powered by the Llama 3.3 70B model via Groq for ultra-fast, deterministic inference.
+- **Project Idea Generation:** Get curated, personalized project ideas instantly by inputting your preferred tech stack and theme.
+- **Live GitHub Scraping:** Analyzes trending repositories on GitHub to provide up-to-date context and insights for modern software development.
+- **AI-Powered Workflows:** Uses a secure, server-side multi-model LLM routing architecture (powered by NVIDIA NIM / OpenAI APIs) to parse requirements and return structured JSON responses.
+- **Modern UI/UX:** A minimalist, highly aesthetic design built with Framer Motion, Next.js, and Tailwind CSS.
 
----
+## Tech Stack
 
-## ✨ Features
+### Frontend
+- [Next.js](https://nextjs.org/) (App Router)
+- [React](https://react.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Framer Motion](https://www.framer.com/motion/)
 
-- **Enterprise ATS Simulation** — Mirrors real-world ATS workflows: resume parsing, keyword extraction, scoring, and gap analysis.
-- **Lightning-Fast LLM Inference** — Powered by Groq and the Llama 3.3 70B model to instantly process resumes and provide real-time feedback.
-- **Deterministic Resume Parsing** — Strict JSON schema enforcement ensures reliable extraction of skills, experience, education, projects, and keywords.
-- **ATS Match Scoring** — Resume-to-job-description alignment score with missing keyword detection and actionable recommendations.
-- **AI-Powered Resume Generation** — Dynamically generates ATS-optimized LaTeX resumes and exports them as polished PDFs.
-- **Cloud PDF Compilation** — Uses a cloud-based LaTeX compilation API for reproducible, dependency-free document rendering.
+### Backend
+- **Express Server** (Decoupled Node.js backend running on port 5000)
+- **AI Integration:** OpenAI SDK configured for external model inference (Llama 3.1 70B & Minimax).
+- **Web Scraping:** Cheerio (for fetching live trending GitHub data)
 
----
-
-## 🏗️ Architecture
-
-```text
-Resume + Job Description
-            │
-            ▼
- Llama 3.3 70B (via Groq)
-  (Extraction & ATS Scoring)
-            │
-            ▼
-  ATS Report + Suggestions
-            │
-            ▼
- Llama 3.3 70B (via Groq)
-  (LaTeX Resume Generation)
-            │
-            ▼
-  Cloud LaTeX API
-    (ytotech.com)
-            │
-            ▼
-       Optimized PDF
-```
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technologies |
-|---|---|
-| **Frontend** | Next.js 14, React, TypeScript, Tailwind CSS |
-| **Backend** | Node.js, Express.js |
-| **AI Models** | Llama 3.3 70B Versatile (via Groq API) |
-| **PDF Pipeline** | Cloud LaTeX API (ytotech.com) |
-
----
-
-## 📈 Workflow
-
-```
-1. Upload Resume
-2. Paste Job Description
-3. Extract Structured Candidate Data     ← Llama 3.3 70B (Groq)
-4. Calculate ATS Match Score             ← Llama 3.3 70B (Groq)
-5. Identify Missing Keywords
-6. Generate Optimization Suggestions
-7. Create ATS-Optimized LaTeX Resume     ← Llama 3.3 70B (Groq)
-8. Compile & Download Professional PDF   ← Cloud LaTeX API
-```
-
----
-
-## ⚡ Key Engineering Challenges Solved
-
-**Reliable LLM Output Parsing**
-LLMs frequently return malformed or inconsistent JSON. HireOrbit enforces strict output schemas and validation layers to guarantee deterministic downstream processing regardless of model variability.
-
-**High-Speed AI Inference**
-Leveraged Groq's LPU inference engine with the Llama 3.3 70B model to deliver near-instantaneous resume parsing and generation, providing a snappy user experience.
-
-**Scalable PDF Generation**
-Shifted from local LaTeX compilation to a robust cloud-based compilation API, eliminating heavy host dependencies and ensuring byte-for-byte reproducible PDF output across all environments.
-
-**ATS Optimization Logic**
-Implemented keyword matching and gap detection algorithms that compare candidate profiles against job requirements and generate specific, prioritized improvement suggestions.
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
+- Node.js (v18+)
+- npm or yarn
 
-- **Node.js** v18+ and npm
-- **Docker & Docker Compose** (optional)
+### Installation
 
----
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd DEA
+   ```
 
-### Environment Variables
+2. Setup Backend:
+   ```bash
+   cd backend
+   npm install
+   # Create .env and .env.local with your API keys inside the backend folder
+   npm start
+   ```
 
-Create the following `.env` files before running the project.
+3. Setup Frontend (in a new terminal):
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
-**`backend/.env`**
-```env
-GROQ_API_KEY=your_groq_api_key_here
-GROQ_API_KEY_LATEX=your_groq_api_key_here
-```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Get your API keys at [console.groq.com](https://console.groq.com).
+## Project Structure
 
-**`frontend/.env.local`**
-```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8040
-```
+- `frontend/src/app` - Main application pages (App Router)
+- `frontend/src/components` - Reusable UI components
+- `backend/src/server.js` - Express backend entry point
+- `backend/src/routes` - API route definitions
+- `backend/src/controllers` - API logic and integrations
 
----
-
-### Running the Project
-
-#### Option A — Docker (Recommended)
-
-From the project root:
-
-```bash
-docker-compose up --build
-```
-
-- Frontend → [http://localhost:3000](http://localhost:3000)
-- Backend → [http://localhost:8040](http://localhost:8040)
-
-#### Option B — Local (Manual)
-
-Make sure `tectonic` is installed on your system, then:
-
-```bash
-# Backend
-cd backend
-npm install
-npm start
-
-# Frontend (in a separate terminal)
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## 🔮 Future Improvements
-
-- [ ] Multiple resume templates
-- [ ] Cover letter generation
-- [ ] Recruiter feedback simulation
-- [ ] Resume version tracking
-- [ ] Interview question generation
-- [ ] RAG-based company-specific ATS optimization
-
----
-
-## 👩‍💻 Author
-
-**Srishti Rawat** — Full-Stack Developer focused on scalable backend systems, AI-powered applications, and production-ready software engineering.
-
-[![GitHub](https://img.shields.io/badge/GitHub-SrishtiDev-181717?style=flat&logo=github)](https://github.com/SrishtiDev)
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
+## Usage
+1. Enter your tech stack (e.g., "React, Node.js, PostgreSQL").
+2. Select a project theme (e.g., "Productivity", "Finance", "Social").
+3. DEA's intelligence engine will analyze your inputs and present you with exactly 4 tailored, high-quality project concepts.
+4. Check out the Explore and Trending pages for real-time inspiration scraped from GitHub.
