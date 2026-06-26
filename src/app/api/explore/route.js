@@ -1,14 +1,4 @@
-import OpenAI from 'openai';
-import { NextResponse } from 'next/server';
-
-export const dynamic = "force-dynamic";
-
 export async function POST(req) {
-  const openai = new OpenAI({
-    apiKey: process.env.NVIDIA_API_KEY_TRENDING,
-    baseURL: process.env.NVIDIA_BASE_URL,
-  });
-
   try {
     const { title, description, techStack } = await req.json();
 
@@ -39,21 +29,42 @@ Provide a detailed project breakdown in this exact JSON format:
 Include 4-6 tech stack items, 4-6 features, and 4-5 implementation phases.
 Return ONLY valid JSON, no markdown.`;
 
-    const completion = await openai.chat.completions.create({
-      model: "minimaxai/minimax-m2.7",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-      top_p: 1,
-      max_tokens: 4096,
+    const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.NVIDIA_API_KEY_TRENDING}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "minimaxai/minimax-m2.7",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        top_p: 1,
+        max_tokens: 4096
+      })
     });
 
-    const content = completion.choices[0].message.content;
-    const cleanedContent = content.replace(/```json|```/g, '').trim();
-    const breakdown = JSON.parse(cleanedContent);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('NVIDIA API Error (Explore):', response.status, response.statusText, errorText);
+      return Response.json({ error: `NVIDIA API Error: ${response.status} - ${errorText}` }, { status: response.status });
+    }
 
-    return NextResponse.json(breakdown);
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    const cleanedContent = content.replace(/```json|```/g, '').trim();
+    
+    let breakdown;
+    try {
+      breakdown = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error('Failed to parse JSON response:', cleanedContent);
+      return Response.json({ error: 'Received invalid data from AI.' }, { status: 502 });
+    }
+
+    return Response.json(breakdown);
   } catch (error) {
     console.error('Explore Error:', error);
-    return NextResponse.json({ error: 'Failed to generate project breakdown' }, { status: 500 });
+    return Response.json({ error: `Failed to generate project breakdown: ${error.message}` }, { status: 500 });
   }
 }
