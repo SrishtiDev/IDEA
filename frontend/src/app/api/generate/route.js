@@ -4,7 +4,7 @@ export async function POST(req) {
   try {
     const openai = new OpenAI({
       apiKey: process.env.NVIDIA_API_KEY,
-      baseURL: process.env.NVIDIA_BASE_URL,
+      baseURL: 'https://integrate.api.nvidia.com/v1',
     });
     const { techStack, theme, customTheme } = await req.json();
     
@@ -15,7 +15,7 @@ export async function POST(req) {
     Return ONLY the JSON array.`;
 
     const completion = await openai.chat.completions.create({
-      model: "meta/llama-3.1-70b-instruct",
+      model: "meta/llama-3.3-70b-instruct",
       messages: [{"role":"user","content": prompt}],
       temperature: 0.7,
       top_p: 1,

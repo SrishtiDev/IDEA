@@ -4,7 +4,7 @@ export async function POST(req) {
   try {
     const openai = new OpenAI({
       apiKey: process.env.NVIDIA_API_KEY_TRENDING,
-      baseURL: process.env.NVIDIA_BASE_URL,
+      baseURL: 'https://integrate.api.nvidia.com/v1',
     });
     const { title, description, techStack } = await req.json();
 
