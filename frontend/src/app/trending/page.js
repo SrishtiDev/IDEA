@@ -21,7 +21,7 @@ export default function TrendingPage() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/trending");
+        const response = await fetch("/api/trending");
         const data = await response.json();
         if (Array.isArray(data)) {
           setRepos(data);
