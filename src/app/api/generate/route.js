@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const { techStack, theme, customTheme } = await req.json();

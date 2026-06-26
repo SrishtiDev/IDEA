@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const { title, description, techStack } = await req.json();
@@ -36,7 +38,7 @@ Return ONLY valid JSON, no markdown.`;
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "minimaxai/minimax-m2.7",
+        model: "meta/llama-3.1-70b-instruct",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
         top_p: 1,
