@@ -32,7 +32,14 @@ export async function POST(req) {
     const data = await response.json();
     const content = data.choices[0].message.content;
     const cleanedContent = content.replace(/```json|```/g, '').trim();
-    const ideas = JSON.parse(cleanedContent);
+    
+    let ideas;
+    try {
+      ideas = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error('Failed to parse JSON response:', cleanedContent);
+      return Response.json({ error: 'Received invalid data from AI.' }, { status: 502 });
+    }
 
     return Response.json(ideas);
   } catch (error) {

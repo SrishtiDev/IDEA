@@ -53,7 +53,14 @@ Return ONLY valid JSON, no markdown.`;
     const data = await response.json();
     const content = data.choices[0].message.content;
     const cleanedContent = content.replace(/```json|```/g, '').trim();
-    const breakdown = JSON.parse(cleanedContent);
+    
+    let breakdown;
+    try {
+      breakdown = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error('Failed to parse JSON response:', cleanedContent);
+      return Response.json({ error: 'Received invalid data from AI.' }, { status: 502 });
+    }
 
     return Response.json(breakdown);
   } catch (error) {
